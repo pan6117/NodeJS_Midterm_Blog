@@ -4,10 +4,9 @@
 
 <h2 class="homePage"><%=title%></h2>
 <p class="homePage"><%=content%></p>
-<ul>
-  <li>
-    Categories: <a href="/categories/<%= categories %>"><%= categories %></a>
-  </li>
-</ul>
+
+<p class="homePage">
+  Categories: <a href="/categories/<%= categories %>"><%= categories %></a>
+</p>
 
 <%- include("partials/footer"); -%>

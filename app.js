@@ -2,6 +2,7 @@
 
 const express = require("express");
 const bodyParser = require("body-parser");
+const bcrypt = require("bcrypt");
 const ejs = require("ejs");
 const _ = require("lodash");
 const { default: mongoose } = require("mongoose");
@@ -30,6 +31,74 @@ mongoose
     console.log(err);
   });
 
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  address: {
+    type: String,
+    required: true,
+  },
+  username: {
+    type: String,
+    required: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+});
+
+const User = mongoose.model("User", userSchema);
+
+app.get("/registration", (req, res) => {
+  res.render("registration");
+});
+
+app.post("/registration", async (req, res) => {
+  try {
+    const { name, address, username, password } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      name,
+      address,
+      username,
+      password: hashedPassword,
+    });
+    await user.save();
+
+    res.redirect("/home");
+  } catch (error) {
+    console.log(error);
+    res.redirect("/registration");
+  }
+});
+
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  const user = await User.findOne({ username });
+
+  if (user) {
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (passwordMatch) {
+      res.redirect("/home");
+    } else {
+      res.redirect("/login");
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
 const postSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -52,7 +121,7 @@ const postSchema = new mongoose.Schema({
 const Post = mongoose.model("Post", postSchema);
 
 app.get("/", (req, res) => {
-  res.redirect("/home");
+  res.redirect("/registration");
 });
 
 app.get("/home", (req, res) => {
@@ -117,6 +186,7 @@ app.get("/tags/:tagId", (req, res) => {
 
   Post.findOne({ tags: requestedTagId })
     .then((tags) => {
+      //console.log(tags);
       res.render("tags", {
         title: tags.title,
         content: tags.content,
