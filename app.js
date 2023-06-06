@@ -20,7 +20,8 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-const url = "mongodb://localhost:27017/midtermDB";
+const url =
+  "mongodb+srv://admin-pan:Test123@cluster0.pyd16yp.mongodb.net/midtermDB";
 
 mongoose
   .connect(url, { useNewUrlParser: true })
